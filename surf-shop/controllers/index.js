@@ -1,23 +1,31 @@
 const { model } = require("mongoose");
+const passport = require("passport");
 
 const User = require("../models/users");
 
 module.exports = {
-  postRegister(req, res, next) {
+  // post Register method POST /register
+  async postRegister(req, res, next) {
     const newUser = new User({
       username: req.body.username,
       email: req.body.email,
       image: req.body.image,
     });
-    User.register(newUser, req.body.password, (err) => {
-      if (err) {
-        console.log("error while user register!", err);
-        return next(err);
-      }
+    await User.register(newUser, req.body.password);
+    res.redirect("/");
+  },
 
-      console.log("user registered!");
+  //post login method post /login
+  postLogin(req, res, next) {
+    passport.authenticate("local", {
+      successRedirect: "/",
+      failureRedirect: "/login",
+    })(req, res, next);
+  },
 
-      res.redirect("/");
-    });
+  //get Logout method get /logout
+  getLogout(req, res, next) {
+    req.logOut();
+    res.redirect("/");
   },
 };
